@@ -1,0 +1,41 @@
+@using SmallMVC.Data
+@model IEnumerable<Person>
+@inject DatabaseContext db
+
+<table class="table table-striped my-3">
+    <thead>
+    <tr>
+        <th>First Name <br>Last Name</th>
+        <th>Age</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var person in Model)
+    {
+        <tr>
+            <td>@person.FirstName @person.LastName</td>
+            <td>@((DateTime.Now - person.BirthDate).Days / 365)</td>
+            <td>
+                @if (person.SpouseDetails == null)
+                {
+                    <select class="marital-status-dropdown" data-person-id="@person.Id">
+                        <option value="">Select...</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                    </select>
+                }
+                else
+                {
+                    <span>@person.SpouseDetails.MaritalStatus</span>
+                    @if (person.SpouseDetails.SpouseId.HasValue)
+                    {
+                        var spouse = await db.People.FindAsync(person.SpouseDetails.SpouseId);
+                        <span>(@spouse.FirstName @spouse.LastName)</span>
+                    }
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
